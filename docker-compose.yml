@@ -1,0 +1,38 @@
+name: my-awesome-chat-app
+
+services:
+  db:
+    image: mariadb:lts
+    ports:
+      - "3306:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: password123
+      MYSQL_ROOT_PASSWORD: password123
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/rails
+    tty: true
+    stdin_open: true
+    environment:
+      - DB_HOST=db
+      - DB_USER=root
+      - DB_PASSWORD=password123
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  mariadb_data:

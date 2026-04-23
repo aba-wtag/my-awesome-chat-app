@@ -1,0 +1,61 @@
+<div class="w-1/5 bg-white border-r flex flex-col shadow-sm">
+  <div class="p-4 border-b bg-gray-50">
+    <h2 class="text-sm font-bold text-gray-700 uppercase tracking-wider">Available Users</h2>
+  </div>
+  <div class="flex-1 overflow-y-auto p-3">
+    <ul>
+      <% @users.each do |user| %>
+        <li class="mb-1">
+          <% active = @conversation.users.include?(user) %>
+          <%= button_to user.name, conversations_path(other_user_id: user.id), method: :post, class: "w-full text-left px-4 py-3 rounded-lg font-medium transition-colors duration-150 #{active ? 'bg-blue-100 text-blue-800' : 'hover:bg-blue-50 text-gray-800'}" %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</div>
+
+<div class="w-4/5 flex flex-col bg-[#e5ddd5]" 
+     data-controller="chat" 
+     data-chat-room-id-value="<%= @conversation.id %>"
+     data-chat-current-user-id-value="<%= current_user.id %>">
+  
+  <div class="px-6 py-4 bg-gray-100 border-b flex items-center shadow-sm z-10">
+    <div class="h-10 w-10 bg-gray-400 rounded-full flex items-center justify-center text-white font-bold mr-4">
+      <%= @conversation.users.where.not(id: current_user.id).first&.name&.chr&.upcase %>
+    </div>
+    <span class="font-bold text-lg text-gray-800">
+      <%= @conversation.users.where.not(id: current_user.id).first&.name %>
+    </span>
+  </div>
+
+  <div class="flex-1 overflow-y-auto p-6" data-chat-target="messages">
+    <% @messages.each do |message| %>
+      <% is_current_user = message.user == current_user %>
+      <div class="mb-4 flex <%= is_current_user ? 'justify-end' : 'justify-start' %>">
+        <div class="relative px-4 py-2 text-sm shadow rounded-lg max-w-md <%= is_current_user ? 'bg-[#dcf8c6] text-gray-800 rounded-tr-none' : 'bg-white text-gray-800 rounded-tl-none' %>">
+          
+          <% unless is_current_user %>
+            <p class="font-bold text-xs text-blue-500 mb-1"><%= message.user.name %></p>
+          <% end %>
+          
+          <p><%= message.content %></p>
+          <p class="text-[10px] text-gray-500 text-right mt-1"><%= message.created_at.strftime("%I:%M %p") %></p>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="p-4 bg-gray-100 border-t">
+    <%= form_with(model: [@conversation, Message.new], data: { action: "turbo:submit-end->chat#clearInput" }) do |f| %>
+      <div class="flex gap-3">
+        <%= f.text_field :content, 
+              data: { chat_target: "input" }, 
+              autocomplete: "off", 
+              class: "flex-1 border-none rounded-full shadow-inner focus:ring-2 focus:ring-blue-400 p-3 px-5 text-sm", 
+              placeholder: "Type a message" %>
+              
+        <%= f.submit "Send", class: "bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-full cursor-pointer transition-colors shadow-md" %>
+      </div>
+    <% end %>
+  </div>
+</div>
