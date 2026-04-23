@@ -1,24 +1,16 @@
-# README
+# my awesome chat app
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
 
-Things you may want to cover:
+## How to run
 
-* Ruby version
+```bash
+git clone https://github.com/aba-wtag/my-awesome-chat-app.git
+```
 
-* System dependencies
+```bash
+cd my-awesome-chat-app
+```
 
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+```bash
+docker compose up --build
+```
